@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>110</x>
+      <y>90</y>
+      <w>210</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>FileStream
+--
+std::string filename
+--
+FileStream(std::string)
+std::string readFile()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>90</y>
+      <w>210</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>Database
+--
+std::string encryption
+--
+Database(std::string)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>110</x>
+      <y>420</y>
+      <w>210</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>Process
+--
+std::vector&lt;char&gt; rotor1
+std::vector&lt;char&gt; rotor2
+std::vector&lt;char&gt; rotorChars
+Database *db
+char input1
+char input2
+--
+Process(Database*)
+void decrypt()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>420</y>
+      <w>210</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>OutputStream
+--
+
+--
+void run(std::string)</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

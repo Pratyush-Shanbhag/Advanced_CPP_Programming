@@ -10,7 +10,7 @@ void b() {
                 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 
                 'Z', ' '};
     for(int i = 0; i < str.size()-3; i++) {
-        //if(str[i])
+       // if(str[i])
     }
 }
 int main() {
