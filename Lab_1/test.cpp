@@ -30,7 +30,9 @@ void CBinaryFiles(string sfile)
         delete[] memblock;
     }
 }
-void main()
+int main()
 {
     CBinaryFiles("Morse.bin");
+
+    return 0;
 }
