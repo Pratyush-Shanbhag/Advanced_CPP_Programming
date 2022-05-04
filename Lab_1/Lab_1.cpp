@@ -15,11 +15,32 @@ class FileStream {
             filename = inputFile;
         }
 
-        string readFile() {
-            ifstream file(filename);
-            string s;
-            getline(file, s);
-            return s;
+        shared_ptr<unsigned char> readFile() {
+            long size;
+            shared_ptr<unsigned char> memblock(nullptr);
+            // opens a file in binary mode
+            ifstream file(filename, ios::binary);
+            // check for open file
+            if (file.is_open())
+            {
+                // go to the beginning of the file
+                file.seekg(0, ios::end);
+                // go to the end of the file (size = endoffile-beginoffile)
+                size = file.tellg();
+                // declares a memory block for the size of the file
+                memblock = make_shared<unsigned char>(new unsigned char[size]);
+                // go to beginning of the file
+                file.seekg(0, ios::beg);
+                // read in 'size' of characters into memblock
+                file.read((char*)memblock.get(), size);
+                // prints the characters
+                cout << memblock << endl;
+                // closes file
+                file.close();
+
+                return memblock;
+            }
+
         }
 };
 
