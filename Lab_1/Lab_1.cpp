@@ -15,7 +15,7 @@ class FileStream {
             filename = inputFile;
         }
 
-        shared_ptr<unsigned char> readFile() {
+        char* readFile() {
             long size;
             shared_ptr<unsigned char> memblock(nullptr);
             // opens a file in binary mode
@@ -38,7 +38,7 @@ class FileStream {
                 // closes file
                 file.close();
 
-                return memblock;
+                return (char*)memblock.get();
             }
 
         }
@@ -47,23 +47,32 @@ class FileStream {
 class Database {
     private:
         string encrypted;
-        vector<char> rotorChars;
+        vector< tuple<string, string, string> > keys;
     
     public:
         Database(string str) {
             encrypted = str;
-            rotorChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-                     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
-                     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                     ' ', '.', ',', ';', '!', '?', '(', ')', '-', '\'', '"'};
+            keys = { make_tuple("A", ".-", "1001"), make_tuple("B", "-...", "01101010"), make_tuple("C", "-.-.", "01100110"), make_tuple("D", "-..", "011010"),
+                     make_tuple("E", ".", "10"), make_tuple("F", "..-.", "10100110"), make_tuple("G", "--.", "010110"), make_tuple("H", "....", "10101010"),
+                     make_tuple("I", "..", "1010"), make_tuple("J", ".---", "10010101"), make_tuple("K", "-.-", "011001"), make_tuple("L", ".-..", "10011010"),
+                     make_tuple("M", "--", "0101"), make_tuple("N", "-.", "0110"), make_tuple("O", "---", "010101"), make_tuple("P", ".--.", "10010110"),
+                     make_tuple("Q", "--.-", "01011001"), make_tuple("R", ".-.", "100110"), make_tuple("S", "...", "101010"), make_tuple("T", "-", "01"),
+                     make_tuple("U", "..-", "101001"), make_tuple("V", "...-", "10101001"), make_tuple("W", ".--", "100101"), make_tuple("X", "-..-", "01101001"),
+                     make_tuple("Y", "-.--", "01100101"), make_tuple("Z", "--..", "01011010"), make_tuple("Ä", ".-.-", "10011001"), make_tuple("Ö", "---.", "01010110"),
+                     make_tuple("Ü", "..--", "10100101"), make_tuple("Ch", "----", "01010101"), make_tuple("0", "-----", "0101010101"), make_tuple("1", ".----", "1001010101"),
+                     make_tuple("2", "..---", "1010010101"), make_tuple("3", "...--", "1010100101"), make_tuple("4", "....-", "1010101001"), make_tuple("5", ".....", "1010101010"),
+                     make_tuple("6", "-....", "0110101010"), make_tuple("7", "--...", "0101101010"), make_tuple("8", "---..", "0101011010"), make_tuple("9", "----.", "0101010110"),
+                     make_tuple(".", ".-.-.-", "100110011001"), make_tuple(",", "--..--", "010110100101"), make_tuple("?", "..--..", "101001011010"), make_tuple("!", "..--.", "1010010110"),
+                     make_tuple(":", "---...", "010101101010"), make_tuple("\"", ".-..-.", "100110100110"), make_tuple("'", ".----.", "100101010110"), make_tuple("=", "-...-", "0110101001"),
+                  };
         }
 
         string getEncrypted() {
             return encrypted;
         }
 
-        vector<char> getRotorChars() {
-            return rotorChars;
+        vector< tuple<string, string, string> >& getKeys() {
+            return keys;
         }
 };
 
@@ -73,121 +82,38 @@ class Process {
         vector<char> a;
         unsigned int length;
         vector<int> indices;
+        Database db;
 
     private:
-        int location(char chr) {
-            int i;
-            for(i = 0; i < length; i++) {
-                if(a[i] == chr)
-                    break;
-            }
-            return i;
-        }
 
-        string encrypt(int r1, int r2) {
-            string str = "";
-            char chr;
+        /*
+        Algorithm Search(binchar) // “0101”
+            foreach tup in tupleList
+            if tup.binary == binchar
+            return tup
+            return null
+        Algorithm Decrypt(encryptedstring)    // “QRb¢$”
+            decryptedstring = Empty 
+            for chr in encryptedstring
+            found = tupleList.Search(chr)    // “0101”
+            decryptedstring.append(found.ascii)
+        */
+        string decrypt() {
+            string decrypted = "";
+            tuple<string, string, string> found;
             for(int i = 0; i < encrypted.length(); i++) {
-                chr = encrypted[i];
-                str.push_back(a[(location(chr) + r1 + r2) % length]);
-                r1++;
-                if(r1 % length == length - 1) {
-                    r2++;
-                }
+                found = search(encrypted[i]);
+                
             }
-            
-            return str;
-        }
-
-        void count() {
-            int num = 2;
-            for(int i = 1; i < 100; i++) {
-                if(location(encrypted[i]) + num == location(encrypted[i+num]))
-                    indices.push_back(i);
-            }
-        }
-
-        int findRotorSum() {
-            int num1, num2;
-            int Aloc = 0;
-            int spaceLoc = 36;
-            int index;
-            int quotient;
-            for(unsigned int i = 0; i < indices.size(); i++) {
-                index = indices.at(i);
-
-                num1 = (location(encrypted[index]) - (spaceLoc + index));
-                if(num1 < 0) {
-                    quotient = abs(num1) / length;
-                    num1 = (num1 + length * (quotient + 1)) % length;
-                }
-                else
-                    num1 %= length;
-
-                num2 = (location(encrypted[index + 1]) - (Aloc + index + 1));
-                if(num2 < 0) {
-                    quotient = abs(num2) / length;
-                    num2 = (num2 + length * (quotient + 1)) % length;
-                }
-                else
-                    num2 %= length;                
-
-                if(num1 == num2)
-                    return num1 - 1;
-            }
-            return -1;
-        }
-
-        
-
-        tuple<int, int, string> decrypt(int rSum) {
-            string decrypted;
-            int index;
-            int n = -1;
-            int inc;
-            int quotient;
-            do
-            {
-                decrypted = "";
-                n++;
-                inc = 0;
-                for(int i = 0; i < encrypted.length(); i++) {
-                    if((i + n +1) % length == 0 && i != 0)
-                        inc++;
-                    index = (location(encrypted[i]) - (rSum + i + inc));
-                    if(index < 0) {
-                        quotient = abs(index) / length;
-                        index = (index + length * (quotient + 1)) % length;
-                    }
-                    else
-                        index %= length;
-                    index = index < 0 ? index + length : index;
-                    decrypted.push_back(a[index]);
-                }   
-            } while (countFrequency(decrypted.substr(0, 99), ". ") != 1);
-
-            return make_tuple(n, rSum - n, decrypted);
-        }
-
-        int countFrequency(const string &str, const string &target) {
-            int count = 0;
-            for(int i = 0; i < str.length() - target.length() + 1; i++) {
-                if(target.compare(str.substr(i, 2)) == 0)
-                    count++;
-            }
-            return count;
         }
 
     public:
-        Process(Database &db) {
-            a = db.getRotorChars();
-            length = a.size();
-            encrypted = db.getEncrypted();
+        Process(Database &dbase) {
+            db = dbase;
         }
 
-        tuple<int, int, string> process() {
-            count();
-            return decrypt(findRotorSum());
+        string process() {
+            return decrypt();
         }
 };
 
@@ -195,15 +121,11 @@ class OutputStream {
     public:
         void run(string str) {
             FileStream fs(str);
-            string encrypted = fs.readFile();
+            string encrypted(fs.readFile());
             Database db(encrypted);
             Process p(db);
-            tuple<int, int, string> decryptedTuple = p.process();
-            cout << "\nInitial Settings:\n";
-            cout << "\tRotor1: " << get<0>(decryptedTuple);
-            cout << "\n\tRotor2: " << get<1>(decryptedTuple);
-            cout << "\n\n\nDecrypted Text:\n\n" << get<2>(decryptedTuple) << "\n" << endl;
-            p.process();
+            cout << "\n\n\nDecrypted Text:\n\n";
+            cout << p.process() << "\n\n\n" << endl;
         }
 };
 
