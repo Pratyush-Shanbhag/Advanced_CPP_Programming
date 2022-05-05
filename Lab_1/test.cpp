@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <bitset>
+
 using namespace std;
 // C style
-void CBinaryFiles(string sfile)
+string CBinaryFiles(string sfile)
 {
     long size;
     unsigned char* memblock;
@@ -27,12 +29,32 @@ void CBinaryFiles(string sfile)
         // closes file
         file.close();
         // cleans up pointer
+        string a(reinterpret_cast<char*>(memblock));
         delete[] memblock;
+        return a;
     }
 }
+
+string StringToBinString(const string& str) {
+    string binString = "";
+    unsigned char c;
+    for(int i = 0; i < str.length(); i++) {
+        c = str[i];
+        binString += bitset<8>(c).to_string();
+    }
+    return binString;
+}
+
 int main()
 {
-    CBinaryFiles("Morse.bin");
-
+    string out = CBinaryFiles("Morse.bin");
+    cout << out << "\n\n\n";
+    unsigned char c;
+    for(int i = 0; i < out.length(); i++) {
+        c = out[i];
+        cout << out[i] << " " << int(c) << "\n";
+    }
+    string s = StringToBinString(out);
+    cout << "\n" << s << "\n" << out.length() << " " << s.length() << endl;
     return 0;
 }
