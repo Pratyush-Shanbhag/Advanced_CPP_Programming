@@ -3,6 +3,7 @@
         "iosfwd": "cpp",
         "memory": "cpp",
         "vector": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "algorithm": "cpp"
     }
 }

@@ -67,7 +67,7 @@ class Database {
                   };
         }
 
-        string getEncrypted() {
+        string& getEncrypted() {
             return encrypted;
         }
 
@@ -78,11 +78,7 @@ class Database {
 
 class Process {
     private:
-        string encrypted;
-        vector<char> a;
-        unsigned int length;
-        vector<int> indices;
-        Database db;
+        shared_ptr<Database> db;
 
     private:
 
@@ -98,22 +94,54 @@ class Process {
             found = tupleList.Search(chr)    // “0101”
             decryptedstring.append(found.ascii)
         */
-        string decrypt() {
-            string decrypted = "";
-            tuple<string, string, string> found;
-            for(int i = 0; i < encrypted.length(); i++) {
-                found = search(encrypted[i]);
-                
+
+        tuple<string, string, string> search(string binchar) {
+            for(int i = 0; i < db.getKeys().size(); i++) {
+                if(get<3>(db.getKeys().at(i)) == binchar)
+                    return db.getKeys().at(i);
             }
+        }
+
+        string getBitRep(unsigned char c) {
+            //bitset<8> bit(c);
+            //return bit.to_string();
+
+            bitset<16> bit(c)
+        }
+
+        string decrypt() {
+            /*string decrypted = "";
+            tuple<string, string, string> found;
+            for(int i = 0; i < db.getEncrypted().length(); i++) {
+                found = search("");
+                decrypted.append(get<0>(found));
+            }*/
+
+            string decrypted = "";
+            int num = 6;
+            string str = "";
+            tuple<string, string, string> found;
+            bitset<8> bit;
+            for(int i = 0; i < db.getEncrypted().length(); i++) {
+
+                found = search("");
+                decrypted.append(get<0>(found));
+            }
+
+            return decrypted;
         }
 
     public:
         Process(Database &dbase) {
-            db = dbase;
+            db = make_shared<Database>(dbase);
         }
 
-        string process() {
+        /* string process() {
             return decrypt();
+        }*/
+
+        void process() {
+
         }
 };
 
