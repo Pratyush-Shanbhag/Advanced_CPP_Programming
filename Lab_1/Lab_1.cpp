@@ -19,7 +19,6 @@ class FileStream {
         string readFile()
         {
             long size;
-            unsigned char* memblock;
             // opens a file in binary mode
             ifstream file(filename, ios::binary);
             // check for open file
@@ -30,16 +29,15 @@ class FileStream {
                 // go to the end of the file (size = endoffile-beginoffile)
                 size = file.tellg();
                 // declares a memory block for the size of the file
-                memblock = new unsigned char[size];
+                unique_ptr<unsigned char[]> memblock(new unsigned char[size]());
                 // go to beginning of the file
                 file.seekg(0, ios::beg);
                 // read in 'size' of characters into memblock
-                file.read((char*)memblock, size);
+                file.read((char*)memblock.get(), size);
                 // closes file
                 file.close();
                 // cleans up pointer
-                string a(reinterpret_cast<char*>(memblock));
-                delete[] memblock;
+                string a(reinterpret_cast<char*>(memblock.get()));
                 return a;
             }
         }
