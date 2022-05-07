@@ -4,6 +4,7 @@
         "memory": "cpp",
         "vector": "cpp",
         "tuple": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "bitset": "cpp"
     }
 }

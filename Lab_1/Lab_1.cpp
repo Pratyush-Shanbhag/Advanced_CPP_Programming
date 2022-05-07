@@ -15,7 +15,7 @@ class FileStream {
             filename = inputFile;
         }
 
-        char* readFile() {
+        string readFile() {
             long size;
             shared_ptr<unsigned char> memblock(nullptr);
             // opens a file in binary mode
@@ -37,8 +37,7 @@ class FileStream {
                 cout << memblock << endl;
                 // closes file
                 file.close();
-
-                return (char*)memblock.get();
+                return reinterpret_cast<char*>(memblock.get());
             }
 
         }
@@ -82,53 +81,86 @@ class Process {
 
     private:
 
-        /*
-        Algorithm Search(binchar) // “0101”
-            foreach tup in tupleList
-            if tup.binary == binchar
-            return tup
-            return null
-        Algorithm Decrypt(encryptedstring)    // “QRb¢$”
-            decryptedstring = Empty 
-            for chr in encryptedstring
-            found = tupleList.Search(chr)    // “0101”
-            decryptedstring.append(found.ascii)
-        */
-
-        tuple<string, string, string> search(string binchar) {
-            for(int i = 0; i < db.getKeys().size(); i++) {
-                if(get<3>(db.getKeys().at(i)) == binchar)
-                    return db.getKeys().at(i);
+        string StringToBinString(const string& str) {
+            string binString = "";
+            unsigned char c;
+            for(int i = 0; i < str.length(); i++) {
+                c = str[i];
+                cout << c << " " << int(c) << endl;
+                binString += bitset<8>(c).to_string();
             }
+            return binString;
         }
 
-        string getBitRep(unsigned char c) {
-            //bitset<8> bit(c);
-            //return bit.to_string();
-
-            bitset<16> bit(c)
+        string search(string binchar) {
+            for(int i = 0; i < db.get()->getKeys().size(); i++) {
+                if(get<2>(db.get()->getKeys().at(i)) == binchar)
+                    return get<0>(db.get()->getKeys().at(i));
+            }
+            return "";
         }
 
-        string decrypt() {
-            /*string decrypted = "";
-            tuple<string, string, string> found;
-            for(int i = 0; i < db.getEncrypted().length(); i++) {
-                found = search("");
-                decrypted.append(get<0>(found));
-            }*/
 
-            string decrypted = "";
-            int num = 6;
-            string str = "";
-            tuple<string, string, string> found;
-            bitset<8> bit;
-            for(int i = 0; i < db.getEncrypted().length(); i++) {
 
-                found = search("");
-                decrypted.append(get<0>(found));
+        string callSearch(string str) {
+
+            string s = "";
+            string in = "";
+            bitset<8> one("11");
+            string ans;
+            for(int i = 0; i < str.length(); i += 8) {
+                ans = (bitset<8>(str.substr(i, 8)) >> 6 & one).to_string();
+                ans = ans.substr(ans.length()-2, 2);
+                if(ans == "00") {
+                    s += search(in);
+                    in = "";
+                }
+                else if(ans == "11")
+                    s += " ";
+                else
+                    in += ans;
+                
+
+
+                ans = (bitset<8>(str.substr(i, 8)) >> 4 & one).to_string();
+                ans = ans.substr(ans.length()-2, 2);
+                if(ans == "00") {
+                    s += search(in);
+                    in = "";
+                }
+                else if(ans == "11")
+                    s += " ";
+                else
+                    in += ans;
+                
+
+
+                ans = (bitset<8>(str.substr(i, 8)) >> 2 & one).to_string();
+                ans = ans.substr(ans.length()-2, 2);
+                if(ans == "00") {
+                    s += search(in);
+                    in = "";
+                }
+                else if(ans == "11")
+                    s += " ";
+                else
+                    in += ans;
+
+
+
+                ans = (bitset<8>(str.substr(i, 8)) & one).to_string();
+                ans = ans.substr(ans.length()-2, 2);
+                if(ans == "00") {
+                    s += search(in);
+                    in = "";
+                }
+                else if(ans == "11")
+                    s += " ";
+                else
+                    in += ans;
             }
-
-            return decrypted;
+            s += search(in);
+            return s;
         }
 
     public:
@@ -136,12 +168,8 @@ class Process {
             db = make_shared<Database>(dbase);
         }
 
-        /* string process() {
-            return decrypt();
-        }*/
-
-        void process() {
-
+        string process() {
+            return callSearch(StringToBinString(db.get()->getEncrypted()));
         }
 };
 
