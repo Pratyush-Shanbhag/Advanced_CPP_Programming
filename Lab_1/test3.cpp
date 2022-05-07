@@ -52,7 +52,7 @@ class A {
                 // closes file
                 file.close();
                 // cleans up pointer
-                vector<wchar_t> a(reinterpret_cast<char*>(memblock));
+                string a(reinterpret_cast<char*>(memblock));
                 delete[] memblock;
                 return a;
             }
@@ -145,12 +145,12 @@ class A {
 int main()
 {
     A a;
-    //string out = a.CBinaryFiles("Morse.bin");
-    string out = "QRb"; //"QRbó6aQ";
-    cout << a.StringToBinString(out) << endl;
-    out += "ó";
+    string out = a.CBinaryFiles("Morse.bin");
+    //string out = "QRb"; //"QRbó6aQ";
+    //cout << a.StringToBinString(out) << endl;
+    //out += "ó";
     string s = a.StringToBinString(out);
-    cout << s << endl;
+    //cout << s << endl;
     a.callSearch(s);
 /*    cout << out << "\n\n\n";
     unsigned char c;
