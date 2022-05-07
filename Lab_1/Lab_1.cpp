@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <memory>
 
 using namespace std;
 
@@ -15,9 +16,10 @@ class FileStream {
             filename = inputFile;
         }
 
-        string readFile() {
+        string readFile()
+        {
             long size;
-            shared_ptr<unsigned char> memblock(nullptr);
+            unsigned char* memblock;
             // opens a file in binary mode
             ifstream file(filename, ios::binary);
             // check for open file
@@ -28,18 +30,18 @@ class FileStream {
                 // go to the end of the file (size = endoffile-beginoffile)
                 size = file.tellg();
                 // declares a memory block for the size of the file
-                memblock = make_shared<unsigned char>(new unsigned char[size]);
+                memblock = new unsigned char[size];
                 // go to beginning of the file
                 file.seekg(0, ios::beg);
                 // read in 'size' of characters into memblock
-                file.read((char*)memblock.get(), size);
-                // prints the characters
-                cout << memblock << endl;
+                file.read((char*)memblock, size);
                 // closes file
                 file.close();
-                return reinterpret_cast<char*>(memblock.get());
+                // cleans up pointer
+                string a(reinterpret_cast<char*>(memblock));
+                delete[] memblock;
+                return a;
             }
-
         }
 };
 
@@ -77,7 +79,7 @@ class Database {
 
 class Process {
     private:
-        shared_ptr<Database> db;
+        Database* db;
 
     private:
 
@@ -86,16 +88,15 @@ class Process {
             unsigned char c;
             for(int i = 0; i < str.length(); i++) {
                 c = str[i];
-                cout << c << " " << int(c) << endl;
                 binString += bitset<8>(c).to_string();
             }
             return binString;
         }
 
         string search(string binchar) {
-            for(int i = 0; i < db.get()->getKeys().size(); i++) {
-                if(get<2>(db.get()->getKeys().at(i)) == binchar)
-                    return get<0>(db.get()->getKeys().at(i));
+            for(int i = 0; i < db->getKeys().size(); i++) {
+                if(get<2>(db->getKeys().at(i)) == binchar)
+                    return get<0>(db->getKeys().at(i));
             }
             return "";
         }
@@ -165,11 +166,11 @@ class Process {
 
     public:
         Process(Database &dbase) {
-            db = make_shared<Database>(dbase);
+            db = &dbase;
         }
 
         string process() {
-            return callSearch(StringToBinString(db.get()->getEncrypted()));
+            return callSearch(StringToBinString(db->getEncrypted()));
         }
 };
 
@@ -188,6 +189,6 @@ class OutputStream {
 
 int main() {
     OutputStream os;
-    os.run("encrypt.txt");
+    os.run("Morse.bin");
     return 0;
 }
