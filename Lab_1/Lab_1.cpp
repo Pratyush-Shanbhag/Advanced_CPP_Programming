@@ -80,17 +80,6 @@ class Process {
         Database* db;
 
     private:
-
-        string StringToBinString(const string& str) {
-            string binString = "";
-            unsigned char c;
-            for(int i = 0; i < str.length(); i++) {
-                c = str[i];
-                binString += bitset<8>(c).to_string();
-            }
-            return binString;
-        }
-
         string search(string binchar) {
             for(int i = 0; i < db->getKeys().size(); i++) {
                 if(get<2>(db->getKeys().at(i)) == binchar)
@@ -102,13 +91,15 @@ class Process {
 
 
         string callSearch(string str) {
-
             string s = "";
             string in = "";
             bitset<8> one("11");
+            unsigned char c;
             string ans;
-            for(int i = 0; i < str.length(); i += 8) {
-                ans = (bitset<8>(str.substr(i, 8)) >> 6 & one).to_string();
+            for(int i = 0; i < str.length(); i++) {
+                c = str[i];
+                bitset<8> bit(c);
+                ans = (bit >> 6 & one).to_string();
                 ans = ans.substr(ans.length()-2, 2);
                 if(ans == "00") {
                     s += search(in);
@@ -121,7 +112,7 @@ class Process {
                 
 
 
-                ans = (bitset<8>(str.substr(i, 8)) >> 4 & one).to_string();
+                ans = (bit >> 4 & one).to_string();
                 ans = ans.substr(ans.length()-2, 2);
                 if(ans == "00") {
                     s += search(in);
@@ -134,7 +125,7 @@ class Process {
                 
 
 
-                ans = (bitset<8>(str.substr(i, 8)) >> 2 & one).to_string();
+                ans = (bit >> 2 & one).to_string();
                 ans = ans.substr(ans.length()-2, 2);
                 if(ans == "00") {
                     s += search(in);
@@ -147,7 +138,7 @@ class Process {
 
 
 
-                ans = (bitset<8>(str.substr(i, 8)) & one).to_string();
+                ans = (bit & one).to_string();
                 ans = ans.substr(ans.length()-2, 2);
                 if(ans == "00") {
                     s += search(in);
@@ -168,7 +159,7 @@ class Process {
         }
 
         string process() {
-            return callSearch(StringToBinString(db->getEncrypted()));
+            return callSearch(db->getEncrypted());
         }
 };
 
