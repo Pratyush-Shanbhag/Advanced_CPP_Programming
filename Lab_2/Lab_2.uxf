@@ -1,0 +1,62 @@
+<diagram program="umletino" version="14.4.0-SNAPSHOT"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>210</x><y>80</y><w>210</w><h>190</h></coordinates><panel_attributes>Node
+--
+
+--
+Node()
+virtual void freq() = 0
+virtual symbol() = 0</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>80</y><w>210</w><h>190</h></coordinates><panel_attributes>Branch:Node
+--
+shared_ptr&lt;Node&gt; _Left
+shared_ptr&lt;Node&gt; _Right
+--
+Branch(shared_ptr&lt;Node&gt;, shared_ptr&lt;Node&gt;)
+float freq()
+string symbol()
+shared_ptr&lt;Node&gt; left()
+shared_ptr&lt;Node&gt; right()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>730</x><y>80</y><w>210</w><h>190</h></coordinates><panel_attributes>Leaf:Node
+--
+float _freq
+string _symbol
+--
+Leaf(string&amp; s, float&amp; f)
+float freq()
+string symbol()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>210</x><y>310</y><w>210</w><h>190</h></coordinates><panel_attributes>Priority_Queue
+--
+vector&lt;shared_ptr&lt;Node&gt;&gt; vdata
+--
+Priority_Queue()
+shared_ptr&lt;Node&gt; top()
+int size()
+bool empty()
+void push(shared_ptr&lt;Node&gt;)
+void pop()
+void print()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>460</x><y>310</y><w>230</w><h>190</h></coordinates><panel_attributes>InputStream
+--
+
+--
+string readBinFile(string)
+map&lt;string, int&gt; readFreqTable(string)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>730</x><y>310</y><w>210</w><h>190</h></coordinates><panel_attributes>Database
+--
+string encryption
+map&lt;string, int&gt; freqTable
+--
+Database()
+string getEncryption()
+map&lt;string, int&gt; getFreqTable()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>210</x><y>540</y><w>210</w><h>190</h></coordinates><panel_attributes>Process
+--
+unique_ptr&lt;Database&gt; dbase
+unique_ptr&lt;Priority_Queue&gt; pq
+--
+Process(Database&amp;)
+string process()
+string decrypt()
+void priorityTree()
+void encode(string)
+string QTreeToString()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>470</x><y>540</y><w>210</w><h>190</h></coordinates><panel_attributes>OutputStream
+--
+string filename
+--
+OutputStream(string)
+void run()
+void writeFile(string)</panel_attributes><additional_attributes></additional_attributes></element></diagram>
