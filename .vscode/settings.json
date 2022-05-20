@@ -5,6 +5,20 @@
         "vector": "cpp",
         "tuple": "cpp",
         "algorithm": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "fstream": "cpp",
+        "regex": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "map": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp",
+        "new": "cpp",
+        "__split_buffer": "cpp",
+        "__functional_base": "cpp",
+        "istream": "cpp",
+        "locale": "cpp",
+        "utility": "cpp"
     }
 }
