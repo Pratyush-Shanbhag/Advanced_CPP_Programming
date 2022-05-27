@@ -5,7 +5,7 @@
 #include <tuple>
 #include <cmath>
 #include <algorithm>
-#include "consolecolor.h"
+#include "ConsoleColor.h"
 
 using namespace std;
 
@@ -74,8 +74,8 @@ struct Opcode
 	int _bit;
 	string _text;
 	Opcode(int b = 0, string t = "") { _bit = b; _text = t; }
-	Opcode(Opcode&& oc) { _bit = move(oc._bit); _text = move(oc._text); }
-	void operator = (Opcode&& oc) { _bit = move(oc._bit); _text = move(oc._text); }
+	Opcode(Opcode&& oc) { _bit = oc._bit; _text = move(oc._text); }
+	void operator = (Opcode&& oc) { _bit = oc._bit; _text = move(oc._text); }
 	friend bool operator == (const Opcode& a, const Opcode& b) { return a._text.compare(b._text); }
 	friend bool operator < (const Opcode& a, const Opcode& b) { return a._bit < b._bit; }
 };
@@ -131,7 +131,7 @@ void exampleRobot()
 	Robot robot;
 	robot.set("ON");
 	robot.set("LEFT");
-	robot.set("BACKWARDS");
+	robot.set("BACKWARD");
 	robot.execute();
 }
 
