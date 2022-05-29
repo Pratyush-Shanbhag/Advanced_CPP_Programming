@@ -74,8 +74,8 @@ struct Opcode
 	int _bit;
 	string _text;
 	Opcode(int b = 0, string t = "") { _bit = b; _text = t; }
-	Opcode(Opcode&& oc) { _bit = oc._bit; _text = move(oc._text); }
-	void operator = (Opcode&& oc) { _bit = oc._bit; _text = move(oc._text); }
+	//Opcode(Opcode&& oc) { _bit = move(oc._bit); _text = move(oc._text); }
+	//Opcode& operator = (Opcode&& oc) { _bit = move(oc._bit); _text = move(oc._text); }
 	friend bool operator == (const Opcode& a, const Opcode& b) { return a._text.compare(b._text); }
 	friend bool operator < (const Opcode& a, const Opcode& b) { return a._bit < b._bit; }
 };
@@ -88,6 +88,7 @@ struct Robot
 	{
 		"ON","OFF","FORWARD","BACKWARD","UP","DOWN","LEFT","RIGHT"
 	};
+
 	Robot()
 	{
 		opcodes.resize(scmds.size());
@@ -98,6 +99,30 @@ struct Robot
 			opcodes.push_back(opcode);
 		}
 	}
+	void runReverseOpcodes()
+	{
+		int num = opcodes.size() - 1;
+		for(int i = 0; i < opcodes.size()/2; i++)
+		{
+			swap(opcodes.at(i), opcodes.at(num - i));
+		}
+	}
+
+	void swap(Opcode& a, Opcode& b)
+	{
+		Opcode temp(move(a));
+		a = move(b);
+		b = move(temp);
+	}
+
+	void printOpcodes() {
+		for(int op = 0; op < opcodes.size(); op++)
+		{
+			cout << opcodes.at(op)._text << " ";
+		}
+		cout << endl;
+	}
+
 	Opcode search(string s)
 	{
 		Opcode oreturn(-1, "");
@@ -111,12 +136,14 @@ struct Robot
 		}
 		return oreturn;
 	}
+
 	bool set(string scmd)
 	{
 		Opcode cmd = search(scmd);
 		command.set(log(cmd._bit) / log(2));
 		return cmd._bit > -1;
 	}
+
 	void execute()
 	{
 		for (int x = 0; x < opcodes.size(); x++)
@@ -133,6 +160,9 @@ void exampleRobot()
 	robot.set("LEFT");
 	robot.set("BACKWARD");
 	robot.execute();
+	robot.printOpcodes();
+	robot.runReverseOpcodes();
+	robot.printOpcodes();
 }
 
 // color individual bits
@@ -184,7 +214,8 @@ void Example1()
 // chars with bitsets
 void Example0()
 {
-	for (unsigned char c = 'A'; c <= unsigned char('Z'); c++)
+	unsigned char z = 'Z';
+	for (unsigned char c = 'A'; c <= z; c++)
 	{
 		bitset<8> bset(c);
 		cout << yellow << c << '\t';
@@ -195,7 +226,7 @@ void Example0()
 	}
 }
 
-void main()
+int main()
 {
 	cout << white << "---0---\n";
 	Example0();
@@ -207,5 +238,7 @@ void main()
 	Example3();
 	cout << white << "---Robot---\n";
 	exampleRobot();
+
+	return 0;
 }
 
