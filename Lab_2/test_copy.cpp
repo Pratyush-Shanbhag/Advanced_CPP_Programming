@@ -10,6 +10,52 @@
 
 using namespace std;
 
+class FileStream {
+    public:
+        string readFile()
+        {
+            long size;
+            // opens a file in binary mode
+            ifstream file("Compress.bin", ios::binary);
+            // check for open file
+            if (file.is_open())
+            {
+                // go to the beginning of the file
+                file.seekg(0, ios::end);
+                // go to the end of the file (size = endoffile-beginoffile)
+                size = file.tellg();
+                // declares a memory block for the size of the file
+                unique_ptr<unsigned char[]> memblock(new unsigned char[size]());
+                // go to beginning of the file
+                file.seekg(0, ios::beg);
+                // read in 'size' of characters into memblock
+                file.read((char*)memblock.get(), size);
+                // closes file
+                file.close();
+                // cleans up pointer
+                string a(reinterpret_cast<char*>(memblock.get()));
+                return a;
+            }
+        }
+
+        map<string, double> readFreq() {
+            map<string, double> m;
+            ifstream infile;
+            infile.open("AsciiFrequenciesV3.txt");
+            string line;
+            smatch first;
+            smatch second;
+            regex pat1("\\('?(.)");
+            regex pat2("(?!',')'*',(.*)(\\))");
+            while(getline(infile, line)) {
+                regex_search(line, first, pat1);
+                regex_search(line, second, pat2);
+                m.insert(make_pair(first.str(1), stod(second.str(1))));
+            }
+            infile.close();
+        }
+};
+
 class Node {
     public:
         Node();
@@ -81,54 +127,38 @@ class Priority_Queue
         }
 };
 
-class FileStream {
+class Process {
+    private:
+        Priority_Queue pq;
+        map<string, double> m;
+    
     public:
-        string readFile(string filename)
-        {
-            long size;
-            // opens a file in binary mode
-            ifstream file(filename, ios::binary);
-            // check for open file
-            if (file.is_open())
-            {
-                // go to the beginning of the file
-                file.seekg(0, ios::end);
-                // go to the end of the file (size = endoffile-beginoffile)
-                size = file.tellg();
-                // declares a memory block for the size of the file
-                unique_ptr<unsigned char[]> memblock(new unsigned char[size]());
-                // go to beginning of the file
-                file.seekg(0, ios::beg);
-                // read in 'size' of characters into memblock
-                file.read((char*)memblock.get(), size);
-                // closes file
-                file.close();
-                // cleans up pointer
-                string a(reinterpret_cast<char*>(memblock.get()));
-                return a;
-            }
+        void process(map<string, double> srcM) {
+            m = sortMap(srcM);
+        }
+        
+        bool compare(pair<string, double>& a, pair<string, double>& b) {
+            return a.second < b.second;
         }
 
-        map<string, double> readFreq() {
-            map<string, double> m;
-            ifstream infile;
-            infile.open("AsciiFrequenciesV3.txt");
-            string line;
-            smatch first;
-            smatch second;
-            regex pat1("\\('?(.)");
-            regex pat2("(?!',')'*',(.*)(\\))");
-            while(getline(infile, line)) {
-                regex_search(line, first, pat1);
-                regex_search(line, second, pat2);
-                m.insert(make_pair(first.str(1), stod(second.str(1))));
+        map<string, double> sortMap(map<string, double> &srcM) {
+            vector<pair<string, double> > v;
+            for(auto &x: srcM) {
+                v.push_back(x);
             }
-            infile.close();
+
+            sort(v.begin(), v.end(), compare);
+
+            map<string, double> m(v.begin(), v.end());
+
+            return m;
         }
 };
 
 int main() {
     FileStream fs;
-    cout << fs.readFile("Compress.bin") << endl;
+    cout << fs.readFile() << endl;
+    Process p;
+    p.process(fs.readFreq());
     return 0;
 }
