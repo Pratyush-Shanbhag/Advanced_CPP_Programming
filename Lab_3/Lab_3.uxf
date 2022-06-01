@@ -1,0 +1,52 @@
+<diagram program="umletino" version="14.4.0-SNAPSHOT"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>0</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Queue
+--
+vector&lt;Cart&gt; carts
+--
+Queue()
+Cart top()
+void insert(Cart)
+void pop()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>260</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>QueueManager
+--
+
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Cart
+--
+vector&lt;Product&gt; products
+--
+Cart()
+Product top()
+void insert(Product)
+void pop()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>250</y><w>210</w><h>190</h></coordinates><panel_attributes>Product
+--
+string barcode
+string name
+double price
+--
+Product(string, string, double)
+void setBarcode(string)
+void setName(string)
+void setPrice(double)
+string getBarcode()
+pair&lt;string, double&gt; getItem()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>250</x><y>250</y><w>230</w><h>190</h></coordinates><panel_attributes>InputStream
+--
+
+--
+vector&lt;vector&lt;string&gt; &gt; readCSV(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>250</y><w>210</w><h>190</h></coordinates><panel_attributes>Database
+--
+map&lt;string, pair&lt;string, double&gt; &gt; products
+--
+Database()
+Cart getCart()
+map&lt;string, int&gt; getFreqTable()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>Process
+--
+unique_ptr&lt;Database&gt; dbase
+unique_ptr&lt;Priority_Queue&gt; pq
+--
+Process(Database&amp;)
+string convertHexToBin(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>260</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>OutputStream
+--
+string filename
+--
+OutputStream(string)
+void run()
+void writeFile(string)</panel_attributes><additional_attributes></additional_attributes></element></diagram>
