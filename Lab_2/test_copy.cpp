@@ -38,8 +38,8 @@ class FileStream {
             }
         }
 
-        map<string, double> readFreq() {
-            map<string, double> m;
+        vector<pair<string, double> > readFreq() {
+            vector<pair<string, double> > v;
             ifstream infile;
             infile.open("AsciiFrequenciesV3.txt");
             string line;
@@ -50,7 +50,7 @@ class FileStream {
             while(getline(infile, line)) {
                 regex_search(line, first, pat1);
                 regex_search(line, second, pat2);
-                m.insert(make_pair(first.str(1), stod(second.str(1))));
+                v.push_back(make_pair(first.str(1), stod(second.str(1))));
             }
             infile.close();
         }
@@ -63,7 +63,7 @@ class Node {
         virtual float freq() = 0;
 };
 
-class Branch:Node {
+class Branch:public Node {
     private:
         shared_ptr<Node> _Left;
         shared_ptr<Node> _Right;
@@ -78,7 +78,7 @@ class Branch:Node {
         shared_ptr<Node> right() { return _Right; }
 };
 
-class Leaf:Node {
+class Leaf:public Node {
     private:
         string _symbol;
         float _freq;
@@ -94,35 +94,35 @@ class Leaf:Node {
 
 class Priority_Queue
 {
-    vector<Node*> vdata;
+    vector<shared_ptr<Node> > vdata;
     public:
         Priority_Queue() { }
-        Node* top()
+        shared_ptr<Node> top()
         {
             if (vdata.size() > 0)
-            return vdata[0];
-            return *vdata.end();
+                return vdata[0];
+            return make_shared<Node>(vdata.end());
         }
         int size() { return vdata.size(); }
         bool empty() { return vdata.size() < 1; }
-        void push(Node* n)
+        void push(shared_ptr<Node> n)
         {
             vdata.push_back(n);
             sort(vdata.begin(), vdata.end(),
-            [](Node* a, Node* b)
+            [](shared_ptr<Node> a, shared_ptr<Node> b)
             {
                 // return a->symbol() < b->symbol();
-                return a->freq() < b->freq();
+                return a.get()->freq() < b.get()->freq();
             });
         }
         void pop() { vdata.erase(vdata.begin()); }
         void print()
         {
             for_each(vdata.begin(), vdata.end(),
-            [](Node* n)
+            [](shared_ptr<Node> n)
             {
                 // cout << n->key() << '\t' << n->value() << endl;
-                cout << n->symbol() << '\t' << n->freq() << endl;
+                cout << n.get()->symbol() << '\t' << n.get()->freq() << endl;
             });
         }
 };
@@ -130,28 +130,70 @@ class Priority_Queue
 class Process {
     private:
         Priority_Queue pq;
-        map<string, double> m;
+        vector<pair<string, double> > v;
+        map<string, string> m;
     
     public:
-        void process(map<string, double> srcM) {
-            m = sortMap(srcM);
+        string process(vector<pair<string, double> > srcV, string enc) {
+            v = srcV;
+            sortMap();
+            constructPQ(v);
+            encode(pq.top(), "");
+            return decrypt(enc);
         }
         
         bool compare(pair<string, double>& a, pair<string, double>& b) {
             return a.second < b.second;
         }
 
-        map<string, double> sortMap(map<string, double> &srcM) {
-            vector<pair<string, double> > v;
-            for(auto &x: srcM) {
-                v.push_back(x);
+        void sortMap() {
+            sort(v.begin(), v.end(), compare);
+        }
+
+        void constructPQ(vector<pair<string, double> > &v) {
+            for(pair<string, double> &x: v) {
+                shared_ptr<Node> n = make_shared<Leaf>(Leaf(x.first, x.second));
+                pq.push(n);
+            }
+            shared_ptr<Node> left;
+            shared_ptr<Node> right;
+            while(pq.size() > 1) {
+                left = make_shared<Node>(pq.top());
+                pq.pop();
+                right = make_shared<Node>(pq.top());
+                pq.pop();
+                shared_ptr<Node> n = make_shared<Branch>(Branch(left, right));
+                pq.push(n);
+            }
+        }
+
+        void encode(shared_ptr<Node> n, string s) {
+            if(typeid(n).name() == "Leaf") {
+                m.insert(make_pair<string, string>(s, n.get()->symbol()));
+            }
+            else {
+                encode(static_pointer_cast<Branch>(n).get()->left(), s + "0");
+                encode(static_pointer_cast<Branch>(n).get()->right(), s + "1");
+            }
+        }
+
+        string decrypt(string encrypted) {
+            string s = "";
+            unsigned char c;
+            string in = "";
+            for(int i = 0; i < encrypted.length(); i++) {
+                c = s[i];
+                bitset<8> bit(c);
+                for(int j = 0; j < 8; j++) {
+                    in += (bit >> j).to_string();
+                    if(m.count(in) == 1) {
+                        s += m.at(in);
+                        in = "";
+                    }
+                }
             }
 
-            sort(v.begin(), v.end(), compare);
-
-            map<string, double> m(v.begin(), v.end());
-
-            return m;
+            return "";
         }
 };
 
