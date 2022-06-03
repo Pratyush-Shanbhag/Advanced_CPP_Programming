@@ -34,8 +34,8 @@ class FileStream {
             return s;
         }
 
-        vector<pair<string, double> > readFreq() {
-            vector<pair<string, double> > v;
+        vector<pair<string, float> > readFreq() {
+            vector<pair<string, float> > v;
             ifstream infile;
             infile.open("AsciiFrequenciesV3.txt");
             string line;
@@ -82,10 +82,10 @@ class Leaf:public Node {
         float _freq;
     
     public:
-        Leaf(bool b) {
+/*        Leaf(bool b) {
             if(b)
                 cout << "";
-        }
+        }*/
         Leaf(string &s, float f) {
             _symbol = s;
             _freq = f;
@@ -132,42 +132,42 @@ class Priority_Queue
 class Process {
     private:
         Priority_Queue pq;
-        vector<pair<string, double> > v;
+        vector<pair<string, float> > v;
         map<string, string> m;
         string l;
     
     public:
-        /*string process(vector<pair<string, double> > srcV, string enc) {
+        /*string process(vector<pair<string, float> > srcV, string enc) {
             v = srcV;
             Leaf leaf;
             l = typeid(leaf).name();
             sortMap();
-            constructPQ(v);
+            constructPQ();
             encode(pq.top(), "");
             return decrypt(enc);
         }*/
 
-        void process(vector<pair<string, double> > srcV) {
+        void process(vector<pair<string, float> > srcV) {
             v = srcV;
-            //Leaf leaf(true);
-            //l = typeid(leaf).name();
             sortVec();
             cout << "\n\n\n";
-            for(int i = 0; i < v.size(); i++) {
+            /*for(int i = 0; i < v.size(); i++) {
                 cout << v.at(i).first << " " << v.at(i).second << endl;
-            }
+            }*/
+            string s = "";
+            l = typeid(Leaf).name();
         }
         
-        bool compare(pair<string, double>& a, pair<string, double>& b) {
+        bool compare(pair<string, float>& a, pair<string, float>& b) {
             return a.second < b.second;
         }
 
         void sortVec() {
-            sort(v.begin(), v.end(), [] (pair<string, double>& a, pair<string, double>& b) {return a.second < b.second;});
+            sort(v.begin(), v.end(), [] (pair<string, float>& a, pair<string, float>& b) {return a.second < b.second;});
         }
 
-        void constructPQ(vector<pair<string, double> > &v) {
-            for(pair<string, double> &x: v) {
+        void constructPQ() {
+            for(pair<string, float> &x: v) {
                 shared_ptr<Node> n = make_shared<Leaf>(Leaf(x.first, x.second));
                 pq.push(n);
             }
