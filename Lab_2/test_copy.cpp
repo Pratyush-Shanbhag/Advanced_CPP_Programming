@@ -14,28 +14,24 @@ class FileStream {
     public:
         string readFile()
         {
-            long size;
-            // opens a file in binary mode
+            long fileSize;
             ifstream file("Compress.bin", ios::binary);
-            // check for open file
-            if (file.is_open())
-            {
-                // go to the beginning of the file
-                file.seekg(0, ios::end);
-                // go to the end of the file (size = endoffile-beginoffile)
-                size = file.tellg();
-                // declares a memory block for the size of the file
-                unique_ptr<unsigned char[]> memblock(new unsigned char[size]());
-                // go to beginning of the file
-                file.seekg(0, ios::beg);
-                // read in 'size' of characters into memblock
-                file.read((char*)memblock.get(), size);
-                // closes file
-                file.close();
-                // cleans up pointer
-                string a(reinterpret_cast<char*>(memblock.get()));
-                return a;
-            }
+
+            file.seekg(0, ios::end);
+            fileSize = file.tellg();
+            file.seekg(0, ios::beg);
+
+            vector<unsigned char> b(fileSize);
+            file.read((char*) &b[0], fileSize);
+            file.close();
+
+            b.erase(std::remove_if(b.begin(), b.end(),
+                [](const unsigned char& x) { 
+                return int(x) < 33 || int(x) == 127;
+                }), b.end());
+
+            string s(b.begin(), b.end());
+            return s;
         }
 
         vector<pair<string, double> > readFreq() {
@@ -53,6 +49,8 @@ class FileStream {
                 v.push_back(make_pair(first.str(1), stod(second.str(1))));
             }
             infile.close();
+
+            return v;
         }
 };
 
@@ -84,6 +82,10 @@ class Leaf:public Node {
         float _freq;
     
     public:
+        Leaf(bool b) {
+            if(b)
+                cout << "";
+        }
         Leaf(string &s, float f) {
             _symbol = s;
             _freq = f;
@@ -101,7 +103,7 @@ class Priority_Queue
         {
             if (vdata.size() > 0)
                 return vdata[0];
-            return make_shared<Node>(vdata.end());
+            return vdata.back(); 
         }
         int size() { return vdata.size(); }
         bool empty() { return vdata.size() < 1; }
@@ -132,22 +134,36 @@ class Process {
         Priority_Queue pq;
         vector<pair<string, double> > v;
         map<string, string> m;
+        string l;
     
     public:
-        string process(vector<pair<string, double> > srcV, string enc) {
+        /*string process(vector<pair<string, double> > srcV, string enc) {
             v = srcV;
+            Leaf leaf;
+            l = typeid(leaf).name();
             sortMap();
             constructPQ(v);
             encode(pq.top(), "");
             return decrypt(enc);
+        }*/
+
+        void process(vector<pair<string, double> > srcV) {
+            v = srcV;
+            //Leaf leaf(true);
+            //l = typeid(leaf).name();
+            sortVec();
+            cout << "\n\n\n";
+            for(int i = 0; i < v.size(); i++) {
+                cout << v.at(i).first << " " << v.at(i).second << endl;
+            }
         }
         
         bool compare(pair<string, double>& a, pair<string, double>& b) {
             return a.second < b.second;
         }
 
-        void sortMap() {
-            sort(v.begin(), v.end(), compare);
+        void sortVec() {
+            sort(v.begin(), v.end(), [] (pair<string, double>& a, pair<string, double>& b) {return a.second < b.second;});
         }
 
         void constructPQ(vector<pair<string, double> > &v) {
@@ -158,9 +174,9 @@ class Process {
             shared_ptr<Node> left;
             shared_ptr<Node> right;
             while(pq.size() > 1) {
-                left = make_shared<Node>(pq.top());
+                left = pq.top();
                 pq.pop();
-                right = make_shared<Node>(pq.top());
+                right = pq.top();
                 pq.pop();
                 shared_ptr<Node> n = make_shared<Branch>(Branch(left, right));
                 pq.push(n);
@@ -168,8 +184,8 @@ class Process {
         }
 
         void encode(shared_ptr<Node> n, string s) {
-            if(typeid(n).name() == "Leaf") {
-                m.insert(make_pair<string, string>(s, n.get()->symbol()));
+            if(typeid(n).name() == l) {
+                m.insert({s, n.get()->symbol()});
             }
             else {
                 encode(static_pointer_cast<Branch>(n).get()->left(), s + "0");
