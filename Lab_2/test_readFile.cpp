@@ -47,11 +47,16 @@ int main() {
 #include <string>
 #include <algorithm>
 
-
+class Leaf {
+    public:
+        Leaf() {
+            std::cout << "";
+        }
+};
 std::vector<unsigned char> readFile(std::string filename)
 {
     // open the file:
-    std::streampos fileSize;
+    long fileSize;
     std::ifstream file(filename, std::ios::binary);
 
     // get its size:
@@ -62,6 +67,7 @@ std::vector<unsigned char> readFile(std::string filename)
     // read the data:
     std::vector<unsigned char> fileData(fileSize);
     file.read((char*) &fileData[0], fileSize);
+    file.close();
     return fileData;
 }
 
@@ -82,8 +88,14 @@ int main() {
     /*for(i = 0; i < b.size(); i++) {
         std::cout << "|" << b.at(i) << "|" << int(b.at(i)) << "\n";
     }*/
+    std::string s(b.begin(), b.end());
+    //std::cout << s;
     std::cout << "\n\n\n" << std::endl;
     std::cout << b.size() << std::endl;
 
+    Leaf leaf;
+    Leaf l;
+    std::cout << "asdf " << typeid(leaf).name() << std::endl;
+    std::cout << "asdf " << typeid(l).name() << std::endl;
     return 0;
 }
