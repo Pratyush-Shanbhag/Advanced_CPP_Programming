@@ -1,4 +1,4 @@
-<diagram program="umletino" version="14.4.0-SNAPSHOT"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>0</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Queue
+<diagram program="umletino" version="14.4.0-SNAPSHOT"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>30</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Queue
 --
 vector&lt;Cart&gt; carts
 --
@@ -6,7 +6,7 @@ Queue()
 Cart top()
 void insert(Cart)
 void pop()
-int size()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>260</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>QueueManager
+int size()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>290</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>QueueManager
 --
 Database db
 vector&lt;Queue&gt; queues
@@ -15,7 +15,7 @@ mutex m
 QueueManager(Database&amp;)
 void insert(Queue)
 void threadProcessing()
-void lookup(Product)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Cart
+void lookup(Product)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>20</y><w>210</w><h>190</h></coordinates><panel_attributes>Cart
 --
 vector&lt;Product&gt; products
 --
@@ -23,7 +23,7 @@ Cart()
 Product top()
 void insert(Product)
 void pop()
-int size()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>250</y><w>210</w><h>190</h></coordinates><panel_attributes>Product
+int size()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>30</x><y>250</y><w>210</w><h>190</h></coordinates><panel_attributes>Product
 --
 string barcode
 string name
@@ -34,16 +34,16 @@ void setBarcode(string)
 void setName(string)
 void setPrice(double)
 string getBarcode()
-pair&lt;string, double&gt; getItem()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>250</x><y>250</y><w>230</w><h>190</h></coordinates><panel_attributes>InputStream
+pair&lt;string, double&gt; getItem()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>280</x><y>250</y><w>230</w><h>190</h></coordinates><panel_attributes>InputStream
 --
 
 --
-vector&lt;vector&lt;string&gt; &gt; readCSV(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>520</x><y>250</y><w>240</w><h>190</h></coordinates><panel_attributes>Database
+vector&lt;vector&lt;string&gt; &gt; readCSV(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>550</x><y>250</y><w>240</w><h>190</h></coordinates><panel_attributes>Database
 --
 map&lt;string, pair&lt;string, double&gt; &gt; products
 --
 Database()
-pair&lt;string, double&gt; getItem(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>Process
+pair&lt;string, double&gt; getItem(string)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>30</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>Process
 --
 Database db
 --
@@ -51,7 +51,7 @@ Process(Database&amp;)
 string convertHexToBin(string)
 void process()
 
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>260</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>OutputStream
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>290</x><y>480</y><w>210</w><h>190</h></coordinates><panel_attributes>OutputStream
 --
 string filename
 --

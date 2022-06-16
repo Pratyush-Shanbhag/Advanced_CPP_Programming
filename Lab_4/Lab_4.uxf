@@ -1,0 +1,31 @@
+<diagram program="umletino" version="14.4.0-SNAPSHOT"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>30</x><y>80</y><w>240</w><h>190</h></coordinates><panel_attributes>InputStream
+--
+
+--
+void readCSV(vector&lt;pair&lt;int, double&gt; &gt;&amp;)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>300</x><y>80</y><w>210</w><h>190</h></coordinates><panel_attributes>Database
+--
+vector&lt;pair&lt;int, double&gt; &gt; data
+--
+Database(vector&lt;pair&lt;int, double&gt; &gt;)
+vector&lt;pair&lt;int, double&gt; &gt;&amp; getData()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>40</x><y>310</y><w>210</w><h>190</h></coordinates><panel_attributes>Process
+--
+shared_ptr&lt;Database&gt; db
+--
+Process(shared_ptr&lt;Database&gt;)
+void process()
+pair&lt;double, double&gt; calclinreg()
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>300</x><y>310</y><w>210</w><h>190</h></coordinates><panel_attributes>OutputStream
+--
+string filename
+--
+OutputStream(string)
+void run()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>540</x><y>190</y><w>290</w><h>190</h></coordinates><panel_attributes>QTManager
+--
+shared_ptr&lt;Database&gt; db
+double m
+double b
+--
+QTManager(shared_ptr&lt;Database&gt;, double, double)
+void graph()</panel_attributes><additional_attributes></additional_attributes></element></diagram>
