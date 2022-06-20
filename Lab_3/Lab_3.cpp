@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -10,8 +11,47 @@
 #include <regex>
 #include <thread>
 #include <mutex>
+#include <pthread.h>
+#include <bitset>
+
 
 using namespace std;
+
+mutex mu;
+
+class Database {
+    private:
+        shared_ptr<map<string, pair<string, double> > > m;
+        shared_ptr<vector<pair<string, vector<string> > > > v;
+
+    public:
+        Database(shared_ptr<map<string, pair<string, double> > > mIn,
+                 shared_ptr<vector<pair<string, vector<string> > > >vIn) {
+            m = mIn;
+            v = vIn;
+        }
+        const auto& getProducts() { return m; }
+        const auto& getCarts() { return v; }
+        void getProduct(string b, pair<string, double> &p) {
+            mu.lock();
+            p = m.get()->find(convertHexToBin(b))->second;
+            mu.unlock();
+        }
+
+        // correct: 100001100100001001001000110100001100011000100
+        string convertHexToBin(string h) {
+            string binstr = "";
+            cout << h << "\t";
+            for(int i = 0; i < h.length(); i+=3) {
+                cout << h.substr(i, 3) << "";
+                bitset<12> b(stoi(h.substr(i, 3), 0, 16));
+                cout << ": ";
+                binstr += b.to_string().substr(3);
+            }
+            cout << endl;
+            return binstr;
+        }
+};
 
 /*class Product {
     private:
@@ -31,24 +71,43 @@ using namespace std;
 class Product {
     private:
         string barcode;
+        pair<string, double> p;
 
     public:
         Product(string b) { barcode = b; }
         string getBarcode() { return barcode; }
+        void setItem(pair<string, double> &pIn) {
+            p = make_pair(pIn.first, pIn.second);
+        }
+        pair<string, double>& getItem() {
+            return p;
+        }
+        friend ostream& operator<<(ostream& os, const Product &product) {
+            os << product.p.first << setw(31) << " " << product.p.second;
+            return os;
+        }
 };
 
 class Cart {
     private:
         string name;
-        vector<shared_ptr<Product> > products;
+    
+    public:
+        vector<Product> products;
 
     public:
         Cart(string n) { name = n; }
-        shared_ptr<Product> top() { return products.front(); }
-        void insert(shared_ptr<Product> p) { products.push_back(p); }
-        void pop() { products.erase(products.begin()); }
-        int size() { return products.size(); }
+        void insert(Product p) { products.push_back(p); }
+        int getSize() { return products.size(); }
         string getName() { return name; }
+        friend ostream& operator<<(ostream& os, const Cart &cart) {
+            os << "\n\n\n" << cart.name << ":\n\n";
+            os << "Name" << setw(31) << " " << "Price\n";
+            for(const auto& product : cart.products) {
+                os << product;
+            }
+            return os;
+        }
 };
 
 /*class Queue {
@@ -73,15 +132,22 @@ class Queue {
         Cart top() { return carts.front(); }
         void insert(Cart &c) { carts.push_back(c); }
         void pop() { carts.erase(carts.begin()); }
-        int size() { return carts.size(); }
+        int getSize() { return carts.size(); }
         void run() {
-            for(int i = 0; i < carts.size(); i++) {
-                thread th(a, i);
+            while(carts.size() > 0) {
+                thread th(&Queue::threadFunc, this);
                 th.join();
+                pop();
             }
         }
-        void a(int index) {
-
+        void threadFunc() {
+            int size = carts.front().products.size();
+            for(int i = 0; i < size; i++) {
+                pair<string, double> p;
+                db.get()->getProduct(carts.front().products.at(i).getBarcode(), p);
+                carts.front().products.at(i).setItem(p);
+            }
+            cout << carts.front();
         }
 };
 
@@ -97,75 +163,37 @@ class QueueManager {
             for(int i = 0; i < 15; i++) {
                 queues.push_back(Queue(db));
             }
-            t();
-            p();
+            prepare();
         }
-        void t() {
+        void prepare() {
             vector<Cart> carts;
-            for(const auto& elem : db.get()->getCarts()) {
-                Cart c(elem.first);
-                for(const auto& n : elem.second) {
-                    c.insert(make_shared<Product>(Product(n)));
+            auto v = db.get()->getCarts();
+            int i;
+            for(i = 0; i < v.get()->size(); i++) {
+                Cart c(v.get()->at(i).first);
+                for(const auto& n : v.get()->at(i).second) {
+                    c.insert(Product(n));
                 }
                 carts.push_back(c);
             }
 
-            for(int i = 0; i < carts.size(); i++) {
+            /*for(i = 0; i < carts.size(); i++) {
                 queues.at(i % queues.size()).insert(carts.at(i));
-            }
+            }*/
+            queues.at(0).insert(carts.at(0));
         }
-
-        void p() {
+        void execute() {
+            /*for(auto& q : queues) {
+                q.run();
+            }*/
+            queues.at(0).run();
         }
-};
-
-class Database {
-    private:
-        map<string, pair<string, string> > m;
-        vector<pair<string, vector<string> > > v;
-        mutex mu;
-
-    public:
-        Database() {}
-        Database(map<string, pair<string, string> > mIn,
-                 vector<pair<string, vector<string> > > vIn) {
-            m = mIn;
-            v = vIn;
-        }
-        const auto& getProducts() { return m; }
-        const auto& getCarts() { return v; }
-        void getProduct(string b, pair<string, string> &p) {
-            mu.lock();
-            p = m.at(convertHexToBin(b));
-            mu.unlock();
-        }
-
-        // correct: 100001100100001001001000110100001100011000100
-        string convertHexToBin(string h) {
-            string binstr = "";
-            for(int i = 0; i < h.length(); i+=3) {
-                bitset<12> b(stoi(h.substr(i, 3), 0, 16));
-                binstr += b.to_string().substr(3);
-            }
-            return binstr;
-        }
-};
-
-class Process {
-    private:
-        shared_ptr<Database> db;
-    public:
-        Process(shared_ptr<Database> dbase) { db = dbase; }
-
-        void process() {
-
-        }
-
 };
 
 class InputStream {
     public:
-        void readxml(map<string, pair<string, string> > &m) {
+        shared_ptr<map<string, pair<string, double> > > readxml() {
+            map<string, pair<string, double> > m;
             ifstream infile;
             infile.open("ProductPrice.xml");
 
@@ -176,7 +204,7 @@ class InputStream {
             smatch third;
             string f;
             string s;
-            string t;
+            double t;
 
             while(getline(infile, line)) {
                 getline(infile, line);
@@ -189,7 +217,7 @@ class InputStream {
 
                 getline(infile, line);
                 regex_search(line, third, pat);
-                t = third.str(1);
+                t = stod(third.str(1));
 
                 getline(infile, line);
 
@@ -198,12 +226,11 @@ class InputStream {
 
             infile.close();
 
-            for(const auto& elem : m) {
-                cout << elem.first << " " << elem.second.first << " " << elem.second.second << endl;
-            }
+            return make_shared<map<string, pair<string, double> > >(m);
         }
 
-        void readcsv(vector<pair<string, vector<string> > > &v) {
+        shared_ptr<vector<pair<string, vector<string> > > > readcsv() {
+            vector<pair<string, vector<string> > > v;
             ifstream infile;
             infile.open("Carts.csv");
 
@@ -225,12 +252,24 @@ class InputStream {
 
             infile.close();
 
-            for(const auto& elem : v) {
-                cout << elem.first << " ";
-                for(const auto& n : elem.second) {
-                    cout << n << " ";
-                }
-                cout << endl;
-            }
+            return make_shared<vector<pair<string, vector<string> > > >(v);
         }
 };
+
+class OutputStream {
+    public:
+        void run() {
+            InputStream is;
+            Database db(is.readxml(), is.readcsv());
+            QueueManager qm(make_shared<Database>(db));
+            qm.prepare();
+            qm.execute();
+        }
+};
+
+int main() {
+    OutputStream output;
+    output.run();
+
+    return 0;
+}
