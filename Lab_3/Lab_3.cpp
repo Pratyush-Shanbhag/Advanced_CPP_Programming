@@ -30,8 +30,8 @@ class Database {
             m = mIn;
             v = vIn;
         }
-        const auto& getProducts() { return m; }
-        const auto& getCarts() { return v; }
+        const auto getProducts() { return m; }
+        const auto getCarts() { return v; }
         void getProduct(string b, pair<string, double> &p) {
             mu.lock();
             p = m.get()->find(convertHexToBin(b))->second;
