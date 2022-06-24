@@ -273,3 +273,5 @@ int main() {
 
     return 0;
 }
+
+//jdoodle.cpp:82:35: error: ambiguous overload for ‘operator=’ (operand types are ‘Node’ and ‘std::__shared_ptr<Node, __gnu_cxx::_S_atomic>::element_type*’ {aka ‘Node*’})
