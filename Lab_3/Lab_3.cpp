@@ -41,14 +41,17 @@ class Database {
         // correct: 100001100100001001001000110100001100011000100
         string convertHexToBin(string h) {
             string binstr = "";
-            cout << h << "\t";
+            int n;
+            cout << "og: " << h << " " << h.length() << " b" << endl;
             for(int i = 0; i < h.length(); i+=3) {
-                //cout << h.substr(i, 3) << "";
-                bitset<12> b(stoi(h.substr(i, 3), 0, 16));
-                //cout << ": ";
+                cout << h.substr(i, 3) << ": ";
+                n = stoi(h.substr(i, 3), 0, 16);
+                cout << n << " ";
+                bitset<12> b(n);
+                cout << "d" << endl;
                 binstr += b.to_string().substr(3);
             }
-            //cout << endl;
+            cout << endl;
             return binstr;
         }
 };
@@ -244,6 +247,12 @@ class InputStream {
                 vector<string> cv;
                 while(getline(ss2, num, ',')) {
                     cv.push_back(num);
+                    if(ss2.str().find(",") == string::npos) {
+                        cout << "s: " << ss2.str() << endl;
+                        ss2 >> num;
+                        cv.push_back(num);
+                        break;
+                    }
                 }
                 v.push_back(make_pair(str, cv));
             }

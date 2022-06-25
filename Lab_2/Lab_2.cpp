@@ -46,7 +46,7 @@ class FileStream {
             while(getline(infile, line)) {
                 regex_search(line, first, pat1);
                 regex_search(line, second, pat2);
-                v.push_back(make_pair(first.str(1), stod(second.str(1))));
+                v.push_back(make_pair(first.str(1), stof(second.str(1))));
             }
             infile.close();
 
@@ -56,9 +56,10 @@ class FileStream {
 
 class Node {
     public:
-        Node();
+        Node() {}
         virtual string symbol() = 0;
         virtual float freq() = 0;
+        virtual string id() = 0;
 };
 
 class Branch:public Node {
@@ -70,10 +71,11 @@ class Branch:public Node {
             _Left = n0;
             _Right = n1;
         }
-        string symbol() { return _Left.get()->symbol() + _Right.get()->symbol(); }
-        float freq() { return _Left.get()->freq() + _Right.get()->freq(); }
+        string symbol() { return _Left->symbol() + _Right->symbol(); }
+        float freq() { return _Left->freq() + _Right->freq(); }
         shared_ptr<Node> left() { return _Left; }
         shared_ptr<Node> right() { return _Right; }
+        string id() { return "Branch"; }
 };
 
 class Leaf:public Node {
@@ -82,16 +84,13 @@ class Leaf:public Node {
         float _freq;
     
     public:
-/*        Leaf(bool b) {
-            if(b)
-                cout << "";
-        }*/
-        Leaf(string &s, float f) {
+        Leaf(string s, float f) {
             _symbol = s;
             _freq = f;
         }
         float freq() { return _freq; }
         string symbol() { return _symbol; }
+        string id() { return "Leaf"; }
 };
 
 class Priority_Queue
@@ -103,7 +102,7 @@ class Priority_Queue
         {
             if (vdata.size() > 0)
                 return vdata[0];
-            return vdata.back(); 
+            return vdata.front(); 
         }
         int size() { return vdata.size(); }
         bool empty() { return vdata.size() < 1; }
@@ -113,8 +112,7 @@ class Priority_Queue
             sort(vdata.begin(), vdata.end(),
             [](shared_ptr<Node> a, shared_ptr<Node> b)
             {
-                // return a->symbol() < b->symbol();
-                return a.get()->freq() < b.get()->freq();
+                return a->freq() < b->freq();
             });
         }
         void pop() { vdata.erase(vdata.begin()); }
@@ -123,8 +121,7 @@ class Priority_Queue
             for_each(vdata.begin(), vdata.end(),
             [](shared_ptr<Node> n)
             {
-                // cout << n->key() << '\t' << n->value() << endl;
-                cout << n.get()->symbol() << '\t' << n.get()->freq() << endl;
+                cout << n->symbol() << '\t' << n->freq() << endl;
             });
         }
 };
@@ -134,32 +131,24 @@ class Process {
         Priority_Queue pq;
         vector<pair<string, float> > v;
         map<string, string> m;
-        string l;
+        string leafName;
+        string branchName;
+        string enc;
     
     public:
-        /*string process(vector<pair<string, float> > srcV, string enc) {
-            v = srcV;
-            Leaf leaf;
-            l = typeid(leaf).name();
-            sortMap();
-            constructPQ();
-            encode(pq.top(), "");
-            return decrypt(enc);
-        }*/
-
-        void process(vector<pair<string, float> > srcV) {
+        void process(vector<pair<string, float> > srcV, string str) {
             v = srcV;
             sortVec();
             cout << "\n\n\n";
-            /*for(int i = 0; i < v.size(); i++) {
-                cout << v.at(i).first << " " << v.at(i).second << endl;
-            }*/
-            string s = "";
-            l = typeid(Leaf).name();
-        }
-        
-        bool compare(pair<string, float>& a, pair<string, float>& b) {
-            return a.second < b.second;
+
+            enc = str;
+
+            constructPQ();
+            encode(pq.top(), "");
+            for(auto &e: m) {
+                cout << e.first << ": " << e.second << endl; 
+            }
+            decrypt();
         }
 
         void sortVec() {
@@ -167,10 +156,10 @@ class Process {
         }
 
         void constructPQ() {
-            for(pair<string, float> &x: v) {
-                shared_ptr<Node> n = make_shared<Leaf>(Leaf(x.first, x.second));
-                pq.push(n);
+            for(auto &x: v) {
+                pq.push(make_shared<Leaf>(x.first, x.second));
             }
+
             shared_ptr<Node> left;
             shared_ptr<Node> right;
             while(pq.size() > 1) {
@@ -178,45 +167,50 @@ class Process {
                 pq.pop();
                 right = pq.top();
                 pq.pop();
-                shared_ptr<Node> n = make_shared<Branch>(Branch(left, right));
+                shared_ptr<Branch> n = make_shared<Branch>(left, right);
                 pq.push(n);
             }
         }
 
         void encode(shared_ptr<Node> n, string s) {
-            if(typeid(n).name() == l) {
-                m.insert({s, n.get()->symbol()});
+            if(n->id() == "Leaf") {
+                m.insert({s, n->symbol()});
             }
-            else {
-                encode(static_pointer_cast<Branch>(n).get()->left(), s + "0");
-                encode(static_pointer_cast<Branch>(n).get()->right(), s + "1");
+            else if(n->id() == "Branch") {
+                encode(static_pointer_cast<Branch>(n)->left(), s + "0");
+                encode(static_pointer_cast<Branch>(n)->right(), s + "1");
             }
         }
 
-        string decrypt(string encrypted) {
+        void decrypt() {
+            cout << "\n\n\n\n\n\n" << endl;
             string s = "";
             unsigned char c;
             string in = "";
-            for(int i = 0; i < encrypted.length(); i++) {
-                c = s[i];
+            int i;
+            int j;
+
+            for(i = 0; i < enc.length(); i++) {
+                c = enc[i];
                 bitset<8> bit(c);
-                for(int j = 0; j < 8; j++) {
-                    in += (bit >> j).to_string();
+                for(j = 0; j < 8; j++) {
+                    in += to_string(bit[j]);
                     if(m.count(in) == 1) {
-                        s += m.at(in);
+                        s += m.find(in)->second;
                         in = "";
                     }
                 }
             }
 
-            return "";
+            cout << "s:" << s << endl;
         }
 };
 
 int main() {
     FileStream fs;
-    cout << fs.readFile() << endl;
+    string str = fs.readFile();
+    cout << str << "\n\n\n" << endl;
     Process p;
-    p.process(fs.readFreq());
+    p.process(fs.readFreq(), str);
     return 0;
 }
