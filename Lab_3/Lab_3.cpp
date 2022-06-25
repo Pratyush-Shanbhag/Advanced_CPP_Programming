@@ -30,11 +30,11 @@ class Database {
             m = mIn;
             v = vIn;
         }
-        const auto getProducts() { return m; }
-        const auto getCarts() { return v; }
+        auto getProducts() { return m; }
+        auto getCarts() { return v; }
         void getProduct(string b, pair<string, double> &p) {
             mu.lock();
-            p = m.get()->find(convertHexToBin(b))->second;
+            p = m->find(convertHexToBin(b))->second;
             mu.unlock();
         }
 
@@ -43,12 +43,12 @@ class Database {
             string binstr = "";
             cout << h << "\t";
             for(int i = 0; i < h.length(); i+=3) {
-                cout << h.substr(i, 3) << "";
+                //cout << h.substr(i, 3) << "";
                 bitset<12> b(stoi(h.substr(i, 3), 0, 16));
-                cout << ": ";
+                //cout << ": ";
                 binstr += b.to_string().substr(3);
             }
-            cout << endl;
+            //cout << endl;
             return binstr;
         }
 };
@@ -144,7 +144,7 @@ class Queue {
             int size = carts.front().products.size();
             for(int i = 0; i < size; i++) {
                 pair<string, double> p;
-                db.get()->getProduct(carts.front().products.at(i).getBarcode(), p);
+                db->getProduct(carts.front().products.at(i).getBarcode(), p);
                 carts.front().products.at(i).setItem(p);
             }
             cout << carts.front();
@@ -167,11 +167,11 @@ class QueueManager {
         }
         void prepare() {
             vector<Cart> carts;
-            auto v = db.get()->getCarts();
+            auto v = db->getCarts();
             int i;
-            for(i = 0; i < v.get()->size(); i++) {
-                Cart c(v.get()->at(i).first);
-                for(const auto& n : v.get()->at(i).second) {
+            for(i = 0; i < v->size(); i++) {
+                Cart c(v->at(i).first);
+                for(const auto& n : v->at(i).second) {
                     c.insert(Product(n));
                 }
                 carts.push_back(c);
@@ -192,8 +192,7 @@ class QueueManager {
 
 class InputStream {
     public:
-        shared_ptr<map<string, pair<string, double> > > readxml() {
-            map<string, pair<string, double> > m;
+        void readxml(map<string, pair<string, double> > &m) {
             ifstream infile;
             infile.open("ProductPrice.xml");
 
@@ -225,12 +224,10 @@ class InputStream {
             }
 
             infile.close();
-
-            return make_shared<map<string, pair<string, double> > >(m);
         }
 
-        shared_ptr<vector<pair<string, vector<string> > > > readcsv() {
-            vector<pair<string, vector<string> > > v;
+        void readcsv(vector<pair<string, vector<string> > > &v) {
+            
             ifstream infile;
             infile.open("Carts.csv");
 
@@ -241,6 +238,7 @@ class InputStream {
             while(getline(infile, str)) {
                 stringstream ss1(str);
                 ss1 >> str;
+                //cout << str << endl;
                 getline(infile, line);
                 stringstream ss2(line);
                 vector<string> cv;
@@ -251,17 +249,29 @@ class InputStream {
             }
 
             infile.close();
-
-            return make_shared<vector<pair<string, vector<string> > > >(v);
         }
 };
 
 class OutputStream {
     public:
         void run() {
+            map<string, pair<string, double> > m;
+            vector<pair<string, vector<string> > > v;
             InputStream is;
-            Database db(is.readxml(), is.readcsv());
-            QueueManager qm(make_shared<Database>(db));
+            is.readxml(m);
+            is.readcsv(v);
+            /*for(const auto& elem : v) {
+                //cout << elem.first << " ";
+                for(const auto& n : elem.second) {
+                    cout << n << " ";
+                }
+                cout << endl;
+            }*/
+            for(const auto &elem: v.front().second) {
+                cout << elem << endl;
+            }
+            shared_ptr<Database> db = make_shared<Database>(make_shared<map<string, pair<string, double> > >(m), make_shared<vector<pair<string, vector<string> > > >(v));
+            QueueManager qm(db);
             qm.prepare();
             qm.execute();
         }
